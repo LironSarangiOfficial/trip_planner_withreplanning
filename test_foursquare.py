@@ -1,10 +1,16 @@
-from services.foursquare_service import search_hotels_foursquare, format_hotel_suggestions
+from services.foursquare_service import get_hotels
 
 
-result = search_hotels_foursquare("Goa", limit=5)
+result = get_hotels("Goa")
 
-print("\nRAW RESULT:")
+print("\nHOTEL RESULT:")
 print(result)
 
-print("\nFORMATTED HOTEL INFO:")
-print(format_hotel_suggestions(result.get("hotels", [])))
+print("\nFORMATTED HOTEL LIST:")
+
+if result:
+    for index, hotel in enumerate(result, start=1):
+        print(f"{index}. {hotel.get('name', 'Unknown hotel')}")
+        print(f"   Address: {hotel.get('address', 'Address not available')}")
+else:
+    print("No hotels found or Foursquare API failed.")
