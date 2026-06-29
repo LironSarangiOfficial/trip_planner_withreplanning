@@ -1,18 +1,9 @@
-"""
-Destination agent — uses Serper for live search and Gemini for cleanup.
-
-Flow:
-1. Serper fetches live Google search results.
-2. Gemini converts raw search results into clean tourist places.
-3. Final clean output is stored in state["place_info"].
-"""
-
 from services.serper_service import search_serper
 from services.llm import call_gemini
 
 
 def destination_agent(state: dict) -> dict:
-    print("running destination agent (Serper + Gemini only)")
+    print("running destination agent")
 
     # Mark current agent for debugging/UI if needed
     state["current_agent"] = "destination"
@@ -126,9 +117,6 @@ Top places to explore in {place}:
     # Store raw Serper results for debugging only
     state["destination_raw_results"] = serper_data.get("organic", [])[:10]
 
-    # IMPORTANT:
-    # UI should read this "output" key.
-    # Earlier only output_preview was there, so UI showed None.
     trace.append({
         "step": "Destination",
         "source": source_used,

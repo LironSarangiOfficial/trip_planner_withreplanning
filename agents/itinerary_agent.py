@@ -1,13 +1,4 @@
-"""
-Itinerary (composer) agent — final step.
-
-Uses the LLM to write a warm, guided, day-by-day plan (Morning / Afternoon /
-Evening with explanations), grounded on everything the other agents fetched.
-Per-day costs come from the budget breakdown, so they vary by day.
-"""
-
 from services.llm import call_gemini
-
 
 def itinerary_agent(state: dict) -> dict:
     print("running itinerary (composer) agent")

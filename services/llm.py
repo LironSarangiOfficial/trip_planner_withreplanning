@@ -1,6 +1,6 @@
 import os
-import json
-import re
+import json # to covert text to python dictionary
+import re # extract json from messy text
 from dotenv import load_dotenv
 import google.generativeai as genai
 
@@ -9,7 +9,7 @@ load_dotenv()
 # Accept either name so existing .env files keep working.
 api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 if api_key:
-    genai.configure(api_key=api_key)
+    genai.configure(api_key=api_key) # configuration of apikey
 
 # Configurable model (default to  widely-available one).
 MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
@@ -20,11 +20,7 @@ def llm_enabled() -> bool:
 
 
 def call_gemini(prompt: str) -> str:
-    """
-    Call Gemini and always return a string.
-    Also prints token usage if available.
-    """
-
+    
     if not api_key:
         print("Gemini API key missing.")
         return ""
@@ -84,7 +80,7 @@ def call_gemini(prompt: str) -> str:
 
 
 def extract_json(text: str):
-    """Parse a JSON object/array from model output (handles ``` fences)."""
+    """Parse a JSON object from model output (handles ``` fences)."""
     if not text:
         return None
     t = text.strip().replace("```json", "").replace("```", "").strip()

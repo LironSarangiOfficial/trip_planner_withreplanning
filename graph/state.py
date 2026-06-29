@@ -1,7 +1,7 @@
 from typing import TypedDict, List, Optional
 
 
-class TripState(TypedDict, total=False):
+class TripState(TypedDict, total=False): # total = false allows all fiels to fill gradually. without this all fields must be present.
     # User input
     user_input: str
     chat_history: List[str]

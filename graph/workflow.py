@@ -20,12 +20,12 @@ AGENT_FN = {
 }
  
  
-# ✅ Route after planner
+# Route after planner
 def route_after_planner(state: dict) -> str:
     return "ask_user" if state.get("need_clarification") else "proceed"
  
  
-# ✅ Build dynamic graph
+# Build dynamic graph
 def build_graph(agents: list = None):
     if agents is None:
         agents = list(AGENT_FN.keys())
@@ -65,50 +65,94 @@ def build_graph(agents: list = None):
  
     return graph.compile()
  
- 
-# ✅ ✅ MAIN SMART EXECUTION FUNCTION
 def invoke_smart(current_state: dict, prev_state: dict):
-    # ✅ FIX 1: Proper first-run detection
+
+    # ✅ Step 1: Run planner FIRST to extract everything using LLM
+    planner_output = planner_agent(current_state.copy())
+
+    # ✅ Step 2: Check if first run
     is_first_run = not bool(prev_state)
- 
+
+    # ✅ Step 3: Detect changes AFTER planner extraction
     if is_first_run:
         changed = set()
     else:
-        changed = detect_changed_fields(prev_state, current_state)
- 
+        changed = detect_changed_fields(prev_state, planner_output)
+
+    # ✅ Step 4: Decide agents
     agents = agents_to_run(changed, is_first_run)
+
+    # ✅ Step 5: Replan message
     replan_msg = describe_replan(changed, agents)
- 
+
     print(f"\n[Replan] {replan_msg}")
     print(f"[Replan] Agents running: {agents}\n")
- 
-    # ✅ FIX 2: Merge states BEFORE execution
-    merged_state = {**prev_state, **current_state}
- 
+
+    # ✅ Step 6: Merge previous + updated planner state
+    merged_state = {**prev_state, **planner_output}
+
+    # ✅ Step 7: Build graph
     graph = build_graph(agents)
+
+    # ✅ Step 8: Run graph
     result = graph.invoke(merged_state)
- 
-    # ✅ FIX 3: Restore skipped outputs (cache)
+
+    # ✅ Step 9: Preserve old outputs for skipped agents
     for agent in AGENT_FN.keys():
         if agent not in agents:
             if agent in prev_state:
                 result[agent] = prev_state[agent]
- 
-    # ✅ Metadata for UI/debug
+
+    # ✅ Step 10: Save replanning metadata
     result["_replan_agents"] = agents
     result["_replan_message"] = replan_msg
     result["_changed_fields"] = list(changed)
- 
+
     return result, replan_msg
+
+
+# def invoke_smart(current_state: dict, prev_state: dict):
+    
+#     is_first_run = not bool(prev_state)
+ 
+#     if is_first_run:
+#         changed = set()
+#     else:
+#         changed = detect_changed_fields(prev_state, current_state)
+ 
+#     agents = agents_to_run(changed, is_first_run)
+#     replan_msg = describe_replan(changed, agents)
+ 
+#     print(f"\n[Replan] {replan_msg}")
+#     print(f"[Replan] Agents running: {agents}\n")
+ 
+    
+#     merged_state = {**prev_state, **current_state}
+ 
+#     graph = build_graph(agents)
+#     result = graph.invoke(merged_state)
+ 
+  
+#     for agent in AGENT_FN.keys():
+#         if agent not in agents:
+#             if agent in prev_state:
+#                 result[agent] = prev_state[agent]
+ 
+
+#     result["_replan_agents"] = agents
+#     result["_replan_message"] = replan_msg
+#     result["_changed_fields"] = list(changed)
+ 
+#     return result, replan_msg
  
  
-# ✅ Optional: graph visualization
+
 if __name__ == "__main__":
     try:
         build_graph().get_graph().draw_mermaid_png(
             output_file_path="graph_diagram.png"
         )
-        print("✅ Graph saved as graph_diagram.png")
+        print("Graph saved as graph_diagram.png")
     except Exception as e:
         print(" Could not render diagram:", e)
  

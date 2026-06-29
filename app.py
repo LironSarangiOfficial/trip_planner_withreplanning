@@ -2,9 +2,7 @@ import streamlit as st
 import re
 from graph.workflow import invoke_smart
  
-# --------------------------------------------------
-# Page Config
-# --------------------------------------------------
+
 st.set_page_config(
     page_title="Smart Trip Planner",
     page_icon="✈️",
@@ -12,30 +10,53 @@ st.set_page_config(
 )
  
 st.title("✈️ Smart Trip Planning Assistant")
+
+
+# def extract_fields_from_text(text, state):
+#     text_lower = text.lower()
  
-# --------------------------------------------------
-# ✅ Field Extraction (VERY IMPORTANT FIX)
-# --------------------------------------------------
+#     # Budget Extraction
+#     budget_match = re.search(r'(\d{4,6})', text_lower)
+#     if budget_match:
+#         state["trip_budget"] = int(budget_match.group(1))
+ 
+#     # Days Extraction
+#     days_match = re.search(r'(\d+)[-\s]?day', text_lower)
+#     if days_match:
+#         state["trip_days"] = int(days_match.group(1))
+ 
+#     # Place Extraction (basic demo)
+#     places = ["mumbai", "goa", "delhi", "manali", "jaipur"]
+#     for p in places:
+#         if p in text_lower:
+#             state["trip_place"] = p.capitalize()
+ 
+#     # Month Extraction
+#     months = [
+#         "january","february","march","april","may","june",
+#         "july","august","september","october","november","december"
+#     ]
+#     for m in months:
+#         if m in text_lower:
+#             state["trip_dates"] = m.capitalize()
+ 
+#     return state
+
 def extract_fields_from_text(text, state):
     text_lower = text.lower()
- 
-    # ✅ Budget Extraction
+
+    # ✅ Budget Extraction (keep this - useful for quick detection)
     budget_match = re.search(r'(\d{4,6})', text_lower)
     if budget_match:
         state["trip_budget"] = int(budget_match.group(1))
- 
-    # ✅ Days Extraction
+
+    # ✅ Days Extraction (keep this)
     days_match = re.search(r'(\d+)[-\s]?day', text_lower)
     if days_match:
         state["trip_days"] = int(days_match.group(1))
- 
-    # ✅ Place Extraction (basic demo)
-    places = ["mumbai", "goa", "delhi", "manali", "jaipur"]
-    for p in places:
-        if p in text_lower:
-            state["trip_place"] = p.capitalize()
- 
-    # ✅ Month Extraction
+
+
+    # ✅ Month Extraction (optional but safe)
     months = [
         "january","february","march","april","may","june",
         "july","august","september","october","november","december"
@@ -43,21 +64,19 @@ def extract_fields_from_text(text, state):
     for m in months:
         if m in text_lower:
             state["trip_dates"] = m.capitalize()
- 
+
     return state
  
-# --------------------------------------------------
+
 # Session State
-# --------------------------------------------------
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
  
 if "trip_state" not in st.session_state:
     st.session_state.trip_state = {}
  
-# --------------------------------------------------
+
 # Sidebar
-# --------------------------------------------------
 with st.sidebar:
     st.header("🔍 Agent Outputs")
  
@@ -76,7 +95,7 @@ with st.sidebar:
  
     if choice == "Weather & best time":
         st.write(state.get("weather_info", "Not available"))
-        st.markdown(f"**🗓 Best time:** {state.get('best_time', 'Not available')}")
+        st.markdown(f"**Best time:** {state.get('best_time', 'Not available')}")
  
     elif choice == "Destination":
         st.write(state.get("place_info", "Not available"))
@@ -90,7 +109,7 @@ with st.sidebar:
     elif choice == "Final Itinerary":
         st.write(state.get("final_itinerary", "Not available"))
  
-    # ✅ Replan Info
+    # Replan Info
     replan_msg = state.get("_replan_message", "")
     if replan_msg:
         st.divider()
@@ -110,9 +129,8 @@ with st.sidebar:
         if skipped:
             st.markdown(f"**Skipped:** `{'`, `'.join(skipped)}`")
  
-# --------------------------------------------------
+
 # Chat History Display
-# --------------------------------------------------
 for msg in st.session_state.chat_history:
     with st.chat_message(msg["role"]):
         st.markdown(msg["content"])
@@ -136,14 +154,14 @@ if user_input:
     with st.chat_message("assistant"):
         with st.spinner("Planning your trip..."):
  
-            # ✅ FULL previous state
+            # FULL previous state
             prev_state = st.session_state.trip_state.copy()
  
-            # ✅ Build current state
+            # Build current state
             current = prev_state.copy()
             current["user_input"] = user_input
  
-            # ✅ ✅ CRITICAL FIX: Extract BEFORE replan
+            # CRITICAL FIX: Extract BEFORE replan
             current = extract_fields_from_text(user_input, current)
  
             current["chat_history"] = [
@@ -154,15 +172,14 @@ if user_input:
  
             current["trace"] = []
  
-            # ✅ Smart execution
+            # Smart execution
             result, replan_msg = invoke_smart(current, prev_state)
  
-            # ✅ Save state
+            # Save state
             st.session_state.trip_state = result
  
-            # --------------------------------------------------
+            
             # Response Handling
-            # --------------------------------------------------
             if result.get("need_clarification"):
                 response = (
                     "Please provide: "
@@ -206,14 +223,13 @@ if user_input:
         "content": response
     })
  
-# --------------------------------------------------
+
 # Final Output
-# --------------------------------------------------
 st.divider()
-st.subheader("🗺 Final Trip Plan")
+st.subheader("Final Trip Plan")
  
 if st.session_state.trip_state.get("final_itinerary"):
     st.markdown(st.session_state.trip_state["final_itinerary"])
 else:
-    st.info("Your itinerary will appear here.")
+    st.info("Your final trip itinerary will appear here.")
  

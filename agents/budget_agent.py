@@ -1,22 +1,17 @@
-"""
-Budget agent — LLM-based cost estimate (grounded with live Serper research).
-No hard-coded per-day cost tables.
-"""
-
 from services.serper_service import search_serper
 from services.llm import call_gemini, extract_json
 from prompts.budget_prompt import get_budget_prompt
 
-
+# this function is converting serper response into natural language
 def _titles(data: dict, n: int = 3) -> str:
     if not isinstance(data, dict) or "error" in data:
         return ""
     return "\n".join(f"- {r.get('title', '')}: {r.get('snippet', '')}"
-                     for r in (data.get("organic") or [])[:n])
+                     for r in (data.get("organic") or [])[:n]) # take top n search results.
 
 
 def budget_agent(state: dict) -> dict:
-    print("running budget agent (Serper research + LLM estimate)")
+    print("running budget agent")
     place = state.get("trip_place", "")
     days = state.get("trip_days", 3) or 3
     budget = state.get("trip_budget", 0) or 0

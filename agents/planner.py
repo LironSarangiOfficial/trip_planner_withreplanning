@@ -1,13 +1,3 @@
-"""
-Planner agent — step 1 (entry point).
-
-Combines extraction + validation in one step:
-1. Parses the user's plain text into structured trip facts using LLM (or regex fallback).
-2. Checks the three must-haves: destination, travel month/dates, and budget.
-3. If any are missing it asks the user and stops the run; otherwise it lets
-   the sequence continue (weather -> destination -> transport -> budget -> itinerary).
-"""
-
 from services.llm import call_gemini, extract_json, llm_enabled
 from utils.helpers import (
     extract_place_from_input, extract_days_from_input, extract_budget_from_input,
@@ -16,9 +6,8 @@ from utils.helpers import (
 
 
 def planner_agent(state: dict) -> dict:
-    print("running planner agent (extract + validate)")
+    print("running planner agent")
 
-    # ── 1. Extract structured facts ──────────────────────────────────────────
     user_input = state.get("user_input", "")
     chat_history = state.get("chat_history", [])
     full_context = "\n".join(chat_history + [user_input]).strip()
