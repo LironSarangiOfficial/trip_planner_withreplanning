@@ -27,7 +27,6 @@ def call_gemini(prompt: str) -> str:
 
     try:
         print("===== GEMINI CALLED =====")
-
         model = genai.GenerativeModel(MODEL)
 
         # Optional: count input prompt tokens before call
