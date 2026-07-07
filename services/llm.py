@@ -12,7 +12,7 @@ if api_key:
     genai.configure(api_key=api_key) # configuration of apikey
 
 # Configurable model (default to  widely-available one).
-MODEL = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
+MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
 
 # function to check if api key exists or not
 def llm_enabled() -> bool:

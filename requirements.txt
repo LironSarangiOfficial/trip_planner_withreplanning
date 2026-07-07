@@ -5,3 +5,4 @@ langchain-google-genai
 google-generativeai
 requests==2.32.3
 python-dotenv==1.1.0
+mcp[cli]==2.0.0b1
