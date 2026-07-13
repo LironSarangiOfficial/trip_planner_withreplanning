@@ -4,7 +4,7 @@ No hard-coded transport rules; the budget/itinerary agents handle reasoning.
 """
 
 from services.serper_service import search_serper
-
+from services.hotelsearch_service import search_hotels
 
 def _snippets(data: dict, n: int = 3) -> str:
     if not isinstance(data, dict) or "error" in data:

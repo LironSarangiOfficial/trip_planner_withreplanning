@@ -1,4 +1,4 @@
-from services.foursquare_service import get_hotels
+from services.hotelsearch_service import get_hotels
 
 
 result = get_hotels("Goa")

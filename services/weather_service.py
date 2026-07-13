@@ -25,3 +25,4 @@ def get_weather(city: str) -> dict:
         return {"error": str(e)}
  
 
+print(get_weather('Mumbai'))
